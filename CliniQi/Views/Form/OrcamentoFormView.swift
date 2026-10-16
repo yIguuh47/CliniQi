@@ -6,6 +6,8 @@
 import SwiftUI
 
 struct OrcamentoFormView: View {
+    var onClose: (() -> Void)?
+
     @State private var viewModel = OrcamentoFormViewModel()
     @State private var generatedPDFURL: URL?
     @State private var isSharing = false
@@ -38,6 +40,13 @@ struct OrcamentoFormView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Orçamento")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if let onClose {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Fechar", action: onClose)
+                    }
+                }
+            }
             .safeAreaInset(edge: .bottom) {
                 generateButton
             }

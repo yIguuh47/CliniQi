@@ -20,6 +20,7 @@ enum EMEBrand {
     static let muted = Color(red: 154 / 255, green: 139 / 255, blue: 126 / 255)
     static let watermark = Color(red: 232 / 255, green: 213 / 255, blue: 200 / 255)
     static let cream = Color(red: 250 / 255, green: 244 / 255, blue: 233 / 255)
+    static let accent = Color(red: 182 / 255, green: 153 / 255, blue: 135 / 255)
 
     static func didot(_ size: CGFloat) -> Font {
         .custom("Didot", size: size)
