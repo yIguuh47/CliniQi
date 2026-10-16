@@ -43,13 +43,26 @@ struct OrcamentoDataOverlay: View {
                 .frame(width: OverlayLayout.subtitle.width, alignment: .leading)
                 .offset(x: OverlayLayout.subtitle.minX, y: OverlayLayout.subtitle.minY)
 
-            proceduresBlock
-                .frame(width: proceduresRect.width, alignment: .leading)
-                .offset(x: proceduresRect.minX, y: proceduresRect.minY)
+            // Valores fluem abaixo dos procedimentos: mantêm a posição do template
+            // e só descem quando a lista de procedimentos ultrapassa esse espaço.
+            VStack(alignment: .leading, spacing: 0) {
+                proceduresBlock
+                    .frame(width: proceduresRect.width, alignment: .leading)
+                    .frame(
+                        minHeight: financialRect.minY - proceduresRect.minY - 20,
+                        alignment: .topLeading
+                    )
 
-            financialBlock
-                .frame(width: financialRect.width, alignment: .leading)
-                .offset(x: financialRect.minX, y: financialRect.minY)
+                connector
+                    .padding(.leading, connectorRect.minX - proceduresRect.minX)
+                    .padding(.top, 10)
+                    .padding(.bottom, 8)
+
+                financialBlock
+                    .frame(width: financialRect.width, alignment: .leading)
+                    .padding(.leading, financialRect.minX - proceduresRect.minX)
+            }
+            .offset(x: proceduresRect.minX, y: proceduresRect.minY)
 
             focusText
                 .frame(width: focusRect.width, height: focusRect.height, alignment: .center)
@@ -65,6 +78,22 @@ struct OrcamentoDataOverlay: View {
 
     private var financialRect: CGRect {
         isPlanoA ? OverlayLayout.financialA : OverlayLayout.financialB
+    }
+
+    private var connectorRect: CGRect {
+        OverlayLayout.templateConnector(pageIndex: isPlanoA ? 0 : 1) ?? OverlayLayout.connectorA
+    }
+
+    /// Linha com bolinha que aponta para os valores, sempre logo acima deles.
+    private var connector: some View {
+        HStack(spacing: 0) {
+            Rectangle()
+                .frame(width: connectorRect.width - 2, height: 0.6)
+            Circle()
+                .frame(width: 2, height: 2)
+        }
+        .foregroundStyle(EMETemplate.connectorColor)
+        .frame(height: 2)
     }
 
     private var focusRect: CGRect {

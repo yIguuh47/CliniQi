@@ -36,6 +36,7 @@ final class PDFService {
 
                     if let templatePage = template.page(at: index) {
                         EMETemplate.draw(templatePage, in: context.cgContext, dest: bounds)
+                        EMETemplate.eraseConnector(pageIndex: index, in: context.cgContext, dest: bounds)
                     }
 
                     if index < 2 {

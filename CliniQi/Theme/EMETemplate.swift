@@ -33,6 +33,7 @@ enum EMETemplate {
             UIColor.white.setFill()
             context.fill(CGRect(origin: .zero, size: size))
             draw(page, in: context.cgContext, dest: CGRect(origin: .zero, size: size))
+            eraseConnector(pageIndex: index, in: context.cgContext, dest: CGRect(origin: .zero, size: size))
         }
     }
 
@@ -47,6 +48,35 @@ enum EMETemplate {
         context.drawPDFPage(cgPage)
         context.restoreGState()
     }
+
+    /// Apaga o conector (linha + bolinha) fixo do template; o overlay o redesenha
+    /// logo acima dos valores, acompanhando a altura da lista de procedimentos.
+    static func eraseConnector(pageIndex: Int, in context: CGContext, dest: CGRect) {
+        guard let line = OverlayLayout.templateConnector(pageIndex: pageIndex) else { return }
+        let sx = dest.width / pageSize.width
+        let sy = dest.height / pageSize.height
+        let cover = line.insetBy(dx: -1, dy: -1)
+        let cardX = OverlayLayout.cardMinX
+
+        func fill(_ rect: CGRect, _ color: UIColor) {
+            context.setFillColor(color.cgColor)
+            context.fill(CGRect(
+                x: dest.minX + rect.minX * sx,
+                y: dest.minY + rect.minY * sy,
+                width: rect.width * sx,
+                height: rect.height * sy
+            ))
+        }
+
+        context.saveGState()
+        fill(CGRect(x: cover.minX, y: cover.minY, width: cardX - cover.minX, height: cover.height), sandColor)
+        fill(CGRect(x: cardX, y: cover.minY, width: cover.maxX - cardX, height: cover.height), paperColor)
+        context.restoreGState()
+    }
+
+    private static let sandColor = UIColor(red: 232 / 255, green: 223 / 255, blue: 214 / 255, alpha: 1)
+    private static let paperColor = UIColor(red: 255 / 255, green: 250 / 255, blue: 245 / 255, alpha: 1)
+    static let connectorColor = Color(red: 182 / 255, green: 153 / 255, blue: 135 / 255)
 }
 
 enum OverlayLayout {
@@ -63,6 +93,20 @@ enum OverlayLayout {
 
     static let proceduresB = CGRect(x: 135.5, y: 512, width: 310, height: 48)
     static let financialB = CGRect(x: 168, y: 564, width: 220, height: 52)
+
+    /// Borda esquerda do cartão claro do template.
+    static let cardMinX: CGFloat = 123
+    /// Conector original do template (linha + bolinha à direita).
+    static let connectorA = CGRect(x: 104.25, y: 522.5, width: 62, height: 2)
+    static let connectorB = CGRect(x: 104.75, y: 510.75, width: 74.25, height: 2.25)
+
+    static func templateConnector(pageIndex: Int) -> CGRect? {
+        switch pageIndex {
+        case 0: connectorA
+        case 1: connectorB
+        default: nil
+        }
+    }
 }
 
 struct TemplatePageBackground: View {
